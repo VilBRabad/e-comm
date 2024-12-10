@@ -347,12 +347,15 @@ def addToCart():
         quntity = data.get('quntity')
 
         token = request.headers.get('Authorization')
+        print("TOKEN::::::", product, quntity, token)
         if not token:
             return jsonify({"error": "Un-authorised request"}), 401
 
         decoded_data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
 
         userId = decoded_data["user_id"]
+
+        print(userId)   
 
         # Validate inputs
         if not product or not quntity:
@@ -377,8 +380,6 @@ def addToCart():
         return jsonify({
             "message": "Added successful"
         }), 200
-    
-
 
     except Exception as e:
         # Log the error for debugging
@@ -658,6 +659,23 @@ def getProductDetails():
             client.table("product").select("*").eq("id", product_id).execute()
         )
     
+        return jsonify({
+            "message": "Added successful",
+            "data": res.data
+        }), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error during login: {str(e)}")
+        return jsonify({"error": "Something went wrong"}), 500
+
+
+@app.route('/get-products', methods=['GET'])
+def getProducts():
+    try:
+        res = ( 
+            client.table("product").select("*").limit(20).execute()
+        )
+
         return jsonify({
             "message": "Added successful",
             "data": res.data

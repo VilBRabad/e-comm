@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { RxCross2 } from "react-icons/rx";
 import CardProductCard from './CardProductCard';
 import { useNavigate } from 'react-router-dom';
@@ -12,13 +12,13 @@ function Cart() {
 
     const getData = async () => {
         try {
-            const res = await axios.get("http://127.0.0.1:5000/login", {
+            const res = await axios.get("http://127.0.0.1:5000/get-user-cart", {
                 headers: {
                     Authorization: localStorage.getItem("accessToken")
                 }
             })
-
-            console.log(re.data.data);
+            console.log(res.data.data[0]);
+            setData(res.data.data[0]);
         } catch (error) {
             window.alert(error.message);
         }
@@ -46,24 +46,16 @@ function Cart() {
                     </div>
                 </div>
                 <div className='flex flex-wrap gap-5'>
-                    <div className='relative group'>
-                        <CardProductCard />
-                        <div className='hidden group-hover:block absolute -top-3 p-2 -right-3 cursor-pointer bg-black rounded-full'>
-                            <RxCross2 color='#FFF' />
-                        </div>
-                    </div>
-                    <div className='relative group'>
-                        <CardProductCard />
-                        <div className='hidden group-hover:block absolute -top-3 p-2 -right-3 cursor-pointer bg-black rounded-full'>
-                            <RxCross2 color='#FFF' />
-                        </div>
-                    </div>
-                    <div className='relative group'>
-                        <CardProductCard />
-                        <div className='hidden group-hover:block absolute -top-3 p-2 -right-3 cursor-pointer bg-black rounded-full'>
-                            <RxCross2 color='#FFF' />
-                        </div>
-                    </div>
+                    {
+                        // data.product && data.product.map((dt, ind) => (
+                        //     <div key={ind} className='relative group'>
+                        //         <CardProductCard data={dt} />
+                        //         <div className='hidden group-hover:block absolute -top-3 p-2 -right-3 cursor-pointer bg-black rounded-full'>
+                        //             <RxCross2 color='#FFF' />
+                        //         </div>
+                        //     </div>
+                        // ))
+                    }
                 </div>
             </div>
         </div>

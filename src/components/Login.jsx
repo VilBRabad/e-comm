@@ -18,8 +18,8 @@ function Login() {
             const res = await axios.post("http://127.0.0.1:5000/login", {
                 email, password
             })
-
-            localStorage.setItem("accessToke", res.data.token);
+            console.log(res.data.token);
+            localStorage.setItem("accessToken", res.data.token);
             login();
             setUser(true);
             navigate("/products");

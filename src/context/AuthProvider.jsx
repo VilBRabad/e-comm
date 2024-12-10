@@ -6,7 +6,9 @@ const AuthProvider = ({ children }) => {
     const [isUser, setUser] = useState(false);
 
     useEffect(() => {
-        if (localStorage.getItem("accessToken")) setLogin(true);
+        if (localStorage.getItem("accessToken")) {
+            setLogin(true);
+        }
     }, []);
 
     const login = () => setLogin(true);
