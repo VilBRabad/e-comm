@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.res-w {
+    width: min(100%, 95rem);
+}
