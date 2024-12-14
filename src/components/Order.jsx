@@ -19,6 +19,9 @@ function Order({ data }) {
                     <div className='px-4 py-1 bg-blue-400 text-white rounded-full'>
                         Q. {data?.quantity}
                     </div>
+                    <div className='px-4 py-1 bg-green-400 text-black rounded-full'>
+                        Payment Mode. {data?.payment}
+                    </div>
                 </div>
                 <div className='h-[1px] bg-black/40 w-full'></div>
                 <p className='font-semibold'>Deliver to:</p>

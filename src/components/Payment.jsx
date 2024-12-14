@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 function Payment() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { productId, addressId } = location.state || {};
+    const { productId, addressId, name } = location.state || {};
     const [prodDetails, setDetails] = useState(null);
 
     if (!productId || !addressId) navigate(-1);
@@ -46,6 +46,35 @@ function Payment() {
     }, [])
 
 
+    const checkoutHandler = async () => {
+        const { data } = await axios.post("http://127.0.0.1:5000/create_order", {
+            amount: (prodDetails?.price - (prodDetails?.price * prodDetails?.discount / 100)) + 20
+        })
+
+        // callback_url: `http://127.0.0.1:5000/paymentverification?productId='${productId}'&addressId='${addressId}'&token='${localStorage.getItem("accessToken")}'`,
+        const options = {
+            key: "rzp_test_Fn1yATSt8ubaAe",
+            amount: (prodDetails?.price - (prodDetails?.price * prodDetails?.discount / 100)) + 20,
+            currency: "INR",
+            name: name,
+            description: "Testing",
+            image: "https://avatars.githubusercontent.com/u/179193971?v=4",
+            order_id: data.order_id,
+            callback_url: `http://127.0.0.1:5000/paymentverification?productId=${productId}&addressId=${addressId}&token=${localStorage.getItem("accessToken")}`,
+            prefill: {
+                name: name,
+            },
+            notes: {
+                "address": "Razorpay Corporate Office"
+            },
+            theme: {
+                "color": "#121212"
+            }
+        };
+        const razor = new window.Razorpay(options);
+        razor.open();
+
+    }
 
     return (
         <div className='w-screen h-screen flex justify-center'>
@@ -65,10 +94,16 @@ function Payment() {
                 </div>
                 <div className='w-[40%]'>
                     <p className='mb-3 font-semibold text-lg'>Select Payment Method</p>
-                    <div className='cursor-pointer shadow-lg w-full border-2 border-black/50 py-4 rounded-xl flex items-center justify-center bg-yellow-500/30'>
+                    <div className='cursor-pointer shadow-lg w-full border-2 border-black/50 py-4 rounded-xl flex flex-col items-center justify-center bg-yellow-500/30'>
                         <p>Cash on delivery</p>
+                        <div onClick={placeOrder} className='w-full mt-4 py-2 bg-sky-400 text-lg font-bold text-white shadow-lg cursor-pointer border border-black rounded-xl flex items-center justify-center'>
+                            <p>Place order</p>
+                        </div>
                     </div>
-                    <div className='relative mt-4 cursor-pointer shadow-lg w-full border-2 border-black/50 py-4 rounded-xl flex items-center justify-between px-7'>
+                    <div onClick={checkoutHandler} className='cursor-pointer shadow-lg w-full border-2 border-black/50 py-4 rounded-xl flex items-center justify-center bg-yellow-500/30'>
+                        <p>Online Pay</p>
+                    </div>
+                    {/* <div className='relative mt-4 cursor-pointer shadow-lg w-full border-2 border-black/50 py-4 rounded-xl flex items-center justify-between px-7'>
                         <div className='opacity-40  h-full'>
                             <p className='text-lg font-semibold'>UPI</p>
                             <div className='mt-3 px-6 py-2 border border-black rounded-lg flex justify-center items-center'>
@@ -89,10 +124,7 @@ function Payment() {
                             <p>Or scan QR Code</p>
                         </div>
                         <p className='absolute font-bold text-xl left-[50%] -translate-x-[50%] shadow-lg bg-white/60 px-2'>Currently not available</p>
-                    </div>
-                    <div onClick={placeOrder} className='w-full mt-4 py-2 bg-sky-400 text-lg font-bold text-white shadow-lg cursor-pointer border border-black rounded-xl flex items-center justify-center'>
-                        <p>Place order</p>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>

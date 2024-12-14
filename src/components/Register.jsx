@@ -13,12 +13,13 @@ function Register() {
         e.preventDefault();
         try {
             setLoading(true);
-            await axios.post("http://localhost:500/register", {
+            await axios.post("http://127.0.0.1:5000/register", {
                 email, password
             })
             navigate("/sigin-in");
             window.alert("Register successfully");
         } catch (error) {
+            console.log(error);
             window.alert("Something went wrong")
         }
         finally {

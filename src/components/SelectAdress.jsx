@@ -77,7 +77,7 @@ function SelectAdress() {
             <div className='relative res-w flex gap-10 pt-[7rem]'>
                 <div onClick={() => {
                     if (selectedAddress) {
-                        navigate("/buy/payment", { state: { productId, addressId: selectedAddress } })
+                        navigate("/buy/payment", { state: { productId, addressId: selectedAddress?.id, name: selectedAddress?.name } })
                     }
                 }} className='cursor-pointer absolute px-8 py-2 bg-blue-500 right-0 rounded-full'>
                     <p className='text-lg font-bold text-white'>Continue</p>
@@ -86,7 +86,7 @@ function SelectAdress() {
                     <h1 className='text-xl font-semibold'>Your save addresses</h1>
                     {
                         (addresses && addresses.length > 0) ? addresses.map((adds, ind) => (
-                            <div onClick={() => setSelectAddress(adds?.id)} key={ind} className={`cursor-pointer relative shadow-lg px-6 py-6 ${selectedAddress === adds.id ? "bg-yellow-500/20" : ""} w-[25rem] border-2 border-black rounded-xl flex flex-col gap-3`}>
+                            <div onClick={() => setSelectAddress(adds)} key={ind} className={`cursor-pointer relative shadow-lg px-6 py-6 ${selectedAddress?.id === adds?.id ? "bg-yellow-500/20" : ""} w-[25rem] border-2 border-black rounded-xl flex flex-col gap-3`}>
                                 <p className='text-lg font-bold'>{adds.name}</p>
                                 <p>Address: {adds.address}</p>
                                 <p>Pincode: {adds.pincode}</p>

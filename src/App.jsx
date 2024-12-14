@@ -19,6 +19,7 @@ import AcceptedOrders from './components/AcceptedOrders'
 import DeliverOrders from './components/DeliverOrders'
 import AddNewItem from './components/AddNewItem'
 import UpdateProfile from './components/UpdateProfile'
+import SuccessPage from './components/SuccessPage'
 
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
           <Route path='/delivered-orders' element={<DeliverOrders />} />
           <Route path='/add-new-item' element={<AddNewItem />} />
           <Route path='/update-seller-profile' element={<UpdateProfile />} />
+          <Route path='/success' element={<SuccessPage />} />
         </Routes>
       </Router>
     </>

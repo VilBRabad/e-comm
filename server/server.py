@@ -1,12 +1,13 @@
 from dotenv import load_dotenv
 load_dotenv()
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, redirect
 from supabase import create_client, Client
 import os
 import bcrypt
 import jwt
 import datetime
 from flask_cors import CORS
+import razorpay
 
 
 app = Flask(__name__)
@@ -14,8 +15,11 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_KEY")
+key_id: str = os.environ.get("KEY_ID")
+key_secret: str = os.environ.get("KEY_SECRETE")
 
 client: Client = create_client(url, key)
+
 
 
 
@@ -32,7 +36,7 @@ def register():
         password = data.get('password')
         
         # Validate inputs
-        if not name or not email or not password:
+        if not email or not password:
             return jsonify({"error": "All fields are required"}), 400
 
         # Check if the email is already registered
@@ -46,7 +50,6 @@ def register():
 
         # Create the user object
         user = {
-            "name": name,
             "email": email,
             "password": hashed_password  # Decode to string
         }
@@ -478,6 +481,170 @@ def removeFromCart():
         return jsonify({"error": "Something went wrong"}), 500
 
 
+
+
+@app.route('/pay', methods=['POST'])
+def pay():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid JSON payload"}), 400
+
+        productId = data.get('productId')
+        addressId = data.get('addressId')
+        
+        razorpayClient = razorpay.Client(auth=(key_id, key_secret))
+
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({"error": "Un-authorised request"}), 401
+
+        decoded_data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
+
+        userId = decoded_data["user_id"]
+
+        # Validate inputs
+        if not productId or not addressId:
+            return jsonify({"error": "porduct and address are required"}), 400
+
+        if not userId:
+            return jsonify({"error": "Un-authorised request"}), 401
+        
+        productDetails = client.table("product").select("*").eq("id", productId).execute()
+        productDet = productDetails.data[0]
+
+        addressDetails = client.table("userAddresses").select("*").eq("id", addressId).execute()
+        addressDet = addressDetails.data[0]
+
+        price = productDet["price"] - (productDet["price"] * productDet["discount"]/100)
+        tax = 50
+        data = {
+            "amount": price + tax,
+            "currency": "INR",
+            "receipt": "#11"
+        }
+
+        payment = razorpayClient.order.create(data=data)
+
+
+    except Exception as e:
+        # Log the error for debugging
+        app.logger.error(f"Error during login: {str(e)}")
+        return jsonify({"error": "Something went wrong"}), 500
+
+
+@app.route('/create_order', methods=['POST'])
+def create_order():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid JSON payload"}), 400
+
+    # productId = data.get('productId')
+    amount = data.get('amount')
+    print(amount)
+
+    # Create an order in Razorpay
+    print(key_id, key_secret)
+    razorpay_client = razorpay.Client(auth=("rzp_test_Fn1yATSt8ubaAe", "viL3AcgFfgfNmVQWkM5IqVIh"))
+    # print("CLIENT: ", razorpay_client)
+    amount_in_paise = int(amount) * 100
+    try:
+        order = razorpay_client.order.create({
+            "amount": amount_in_paise,
+            "currency": "INR"
+        })
+
+        print(order)
+        return jsonify({"order_id": order['id'], "status": "success"})
+    except Exception as e:
+        print(e)
+        return jsonify({"error": str(e), "status": "failure"}), 500
+    
+
+@app.route('/paymentverification', methods=['POST'])
+def verify_payment():
+    # data = request.get_json()
+    # if not data:
+    #     return jsonify({"error": "Invalid JSON payload"}), 400
+
+    # productId = data.get('productId')
+    print(f"Query Params: {request.args}")
+
+    # razorpay_order_id = data.get('razorpay_order_id')
+    # razorpay_payment_id = data.get('razorpay_payment_id')
+    # razorpay_signature = data.get('razorpay_signature')
+
+    razorpay_client = razorpay.Client(auth=(key_id, key_secret))
+
+
+    try:
+        # print(razorpay_order_id, razorpay_payment_id, razorpay_signature)
+
+        # razorpay_client.utility.verify_payment_signature({
+        # 'razorpay_order_id': razorpay_order_id,
+        # 'razorpay_payment_id': razorpay_payment_id,
+        # 'razorpay_signature': razorpay_signature
+        # })
+
+
+        product_id = request.args.get('productId')
+        address_id = request.args.get('addressId')
+        token = request.args.get('token')
+
+        print(f"Product ID: {product_id}")
+        print(f"Address ID: {address_id}")
+        print(f"Token: {token}")
+
+
+        if not token:
+            return jsonify({"error": "Un-authorised request"}), 401
+
+        decoded_data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
+
+        userId = decoded_data["user_id"]
+
+        # Validate inputs
+        if not product_id or not address_id:
+            return jsonify({"error": "porduct and address are required"}), 400
+
+        if not userId:
+            return jsonify({"error": "Un-authorised request"}), 401
+        
+
+        productDetails = client.table("product").select("*").eq("id", product_id).execute()
+        productDet = productDetails.data[0]
+        # print("###DATA: ", productDet)
+        price = productDet["price"] - (productDet["price"] * productDet["discount"]/100)
+
+        data = {
+            "product": productDet['id'],
+            "quantity": 1,
+            "seller": productDet['seller'],
+            "user": userId,
+            "total_price": price,
+            "status": False,
+            "address": address_id,
+            "payment": "Online"
+        }
+
+        res = (
+            client.table("order").insert(data).execute()
+        )
+        
+        if productDet['stock'] == 1:
+            client.table("product").delete().eq("id", productDet['id']).execute()
+        else:
+            client.table("product").update({"stock": productDet['stock'] - 1}).eq("id", productDet['id']).execute()
+
+
+        return redirect("http://localhost:5173/success")
+
+    except Exception as e:
+        print(e)
+        return jsonify({"error": str(e), "status": "failure"}), 500
+    
+
+
 @app.route('/make-order', methods=['POST'])
 def makeOrder():
     try:
@@ -515,7 +682,8 @@ def makeOrder():
             "user": userId,
             "total_price": price,
             "status": status,
-            "address": addressId
+            "address": addressId,
+            "payment": "COD"
         }
 
         res = (
@@ -525,7 +693,7 @@ def makeOrder():
         if productDet['stock'] == 1:
             client.table("product").delete().eq("id", productDet['id']).execute()
         else:
-            client.table("product").update({"stock", productDet['stock']-1}).eq("id", productDet['id']).execute()
+            client.table("product").update({"stock": productDet['stock'] - 1}).eq("id", productDet['id']).execute()
 
         if not res.data or len(res.data) == 0:
             return jsonify({"error": "Something wen wrong"}), 401
