@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react'
+import React, { useContext } from 'react'
 import { FaShoppingCart } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -6,10 +6,6 @@ import { AuthContext } from '../context/AuthContext';
 function Navbar() {
     const navigate = useNavigate();
     const { isLogin, isUser, logout } = useContext(AuthContext);
-
-    // useEffect(() => {
-
-    // }, [isLogin]);
 
     return (
         <div className='absolute h-[3.5rem] bg-blue-900 w-screen flex justify-center items-center z-50'>
@@ -30,9 +26,13 @@ function Navbar() {
                     }
                     {
                         isLogin ?
-                            !isUser ?
-                                <p onClick={() => navigate("/dashboard")} className='cursor-pointer'>Dashboard</p> :
+                            <>
+                                {
+                                    !isUser &&
+                                    <p onClick={() => navigate("/dashboard")} className='cursor-pointer'>Dashboard</p>
+                                }
                                 <p onClick={() => { navigate("/"); logout() }} className='cursor-pointer'>Logout</p>
+                            </>
                             :
                             <>
                                 <p onClick={() => navigate("/sign-in")} className='cursor-pointer'>Login</p>

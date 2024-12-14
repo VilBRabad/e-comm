@@ -10,14 +10,54 @@ function AddNewItem() {
     const [stock, setStock] = useState("");
     const [company, setCompany] = useState("");
     const [category, setCategory] = useState("");
-    const [img_url, setImageUrl] = useState("www.google.com");
+    // const [img_url, setImageUrl] = useState("www.google.com");
+
+    const [image, setImage] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState("");
+    const [uploading, setUploading] = useState(false);
+    const [publicUrl, setPublicUrl] = useState("");
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImage(file);
+            setPreviewUrl(URL.createObjectURL(file)); // Display preview
+        }
+    };
+
+    const handleUpload = async () => {
+        if (!image) {
+            alert("Please select an image first.");
+            return;
+        }
+
+        setUploading(true);
+
+        const formData = new FormData();
+        formData.append("file", image);
+        formData.append("upload_preset", "e-comm"); // Replace with your unsigned preset
+
+        try {
+            const response = await axios.post(
+                `https://api.cloudinary.com/v1_1/dr91ybej4/image/upload`, // Replace with your Cloud Name
+                formData
+            );
+            setPublicUrl(response.data.secure_url); // Get public URL of the uploaded image
+            // alert("Image uploaded successfully!");
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            alert("Failed to upload image.");
+        } finally {
+            setUploading(false);
+        }
+    };
 
     const addItem = async (e) => {
         e.preventDefault();
         try {
-            console.log("CAT", category);
+            await handleUpload();
             const res = await axios.post("http://127.0.0.1:5000/add-product", {
-                title, price, discount, description, stock, company, category, img_url
+                title, price, discount, description, stock, company, category, img_url: publicUrl
             },
                 {
                     headers: {
@@ -25,7 +65,17 @@ function AddNewItem() {
                     }
                 }
             )
-
+            setTitle("");
+            setPrice("");
+            setDiscount("");
+            setDescription("");
+            setStock("");
+            setCompany("");
+            setCategory("");
+            setImage(null);
+            setPreviewUrl("");
+            setUploading(false);
+            setPublicUrl("");
             window.alert("Added new Item");
         } catch (error) {
             window.alert(error.message);
@@ -39,6 +89,13 @@ function AddNewItem() {
                     <div className='flex flex-col'>
                         <label htmlFor="">Title of item</label>
                         <input required value={title} onChange={e => setTitle(e.target.value)} type="text" placeholder='Redmi N2 8GB RAM, 256GB......' className='outline-0 border border-black py-2 px-3' />
+                    </div>
+                    <div className='flex flex-col'>
+                        <label htmlFor="">Upload photo (Only one)</label>
+                        <input required onChange={handleImageChange} type="file" placeholder='Redmi N2 8GB RAM, 256GB......' className='outline-0 border border-black py-2 px-3' />
+                        <button disabled={uploading}>
+                            {uploading && "Uploading..."}
+                        </button>
                     </div>
                     <div className='flex flex-col'>
                         <label htmlFor="">Original Price</label>

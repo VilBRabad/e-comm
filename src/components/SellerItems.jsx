@@ -28,12 +28,33 @@ function SellerItems() {
         getData();
     }, []);
 
+
+    const removeItem = async (id) => {
+        try {
+            await axios.post("http://127.0.0.1:5000/remove-item-from-list",
+                {
+                    productId: id
+                },
+                {
+                    headers: {
+                        Authorization: localStorage.getItem("accessToken")
+                    }
+                }
+            )
+            window.alert("Remove from list");
+            getData();
+        } catch (error) {
+            window.alert("Something wen wrong..");
+        }
+    }
+
+
     return (
         <SellerDashboard>
             <div className='mt-6 flex gap-5 flex-wrap'>
                 {
                     data && data.map((dt, ind) => (
-                        <Items key={ind} data={dt} />
+                        <Items key={ind} data={dt} removeItem={removeItem} />
                     ))
                 }
             </div>

@@ -2,17 +2,35 @@ import React, { useContext, useEffect, useState } from 'react'
 import Order from './Order'
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
 
 function Orders() {
     const navigate = useNavigate();
     const { isLogin } = useContext(AuthContext);
-    const [data, setData] = useState(undefined);
+    const [data, setData] = useState(null);
+
+    const getOrderData = async () => {
+        try {
+            const res = await axios.get("http://127.0.0.1:5000/get-user-orders", {
+                headers: {
+                    Authorization: localStorage.getItem("accessToken")
+                }
+            })
+
+            setData(res.data.data);
+        } catch (error) {
+            window.alert("Something went wrong");
+            console.log(error);
+        }
+    }
 
     useEffect(() => {
         if (!isLogin) navigate("/sign-in");
-
-
+        else getOrderData();
     }, []);
+
+    // console.log(data);
 
     return (
         <div className='w-screen h-screen flex justify-center'>
@@ -22,8 +40,11 @@ function Orders() {
                     <h1 className='font-bold mb-6 text-sky-800 cursor-pointer'>History</h1>
                 </div>
                 <div className='flex flex-col items-center gap-3'>
-                    <Order />
-                    <Order />
+                    {
+                        data && data?.map((dt, ind) => (
+                            <Order key={ind} data={dt} />
+                        ))
+                    }
                 </div>
             </div>
         </div>

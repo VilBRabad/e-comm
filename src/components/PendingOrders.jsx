@@ -27,12 +27,32 @@ function PendingOrders() {
         getData();
     }, []);
 
+    const acceptOrder = async (orderId) => {
+        try {
+            await axios.post("http://127.0.0.1:5000/accept-order",
+                {
+                    orderId
+                },
+                {
+                    headers: {
+                        Authorization: localStorage.getItem("accessToken")
+                    }
+                }
+            )
+            getData();
+            window.alert("Order accepted...!");
+        } catch (error) {
+            window.alert("Something went wrong");
+            console.log(error);
+        }
+    }
+
     return (
         <SellerDashboard>
             <div className='flex flex-col gap-5 pl-4 mt-8'>
                 {
                     data && data.map((dt, ind) => (
-                        <PendingOrder data={dt} />
+                        <PendingOrder key={ind} data={dt} acceptOrder={acceptOrder} />
                     ))
                 }
             </div>

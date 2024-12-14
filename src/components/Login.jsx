@@ -9,7 +9,7 @@ function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-    const { login, setUser } = useContext(AuthContext);
+    const { login, setUser, setCart } = useContext(AuthContext);
 
     const submitHandle = async (e) => {
         e.preventDefault();
@@ -18,8 +18,10 @@ function Login() {
             const res = await axios.post("http://127.0.0.1:5000/login", {
                 email, password
             })
-            console.log(res.data.token);
             localStorage.setItem("accessToken", res.data.token);
+            localStorage.setItem("user", true);
+            console.log(res.data.cart);
+            setCart(res.data.cart)
             login();
             setUser(true);
             navigate("/products");

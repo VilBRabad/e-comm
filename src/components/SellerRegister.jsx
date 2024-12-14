@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios';
 
 function SellerRegister() {
     const navigate = useNavigate();
@@ -18,12 +19,13 @@ function SellerRegister() {
         try {
             if (password !== cpassword) throw new Error("")
             setLoading(true);
-            await axios.post("http://localhost:500/register-as-seller", {
+            await axios.post("http://localhost:5000/register-as-seller", {
                 email, password, shop_name, owner_name, address, pincode
             })
             navigate("/login-as-seller");
             window.alert("Register successfully");
         } catch (error) {
+            console.log(error);
             window.alert(error.message || "Something went wrong")
         }
         finally {

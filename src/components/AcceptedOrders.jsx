@@ -32,7 +32,7 @@ function AcceptedOrders() {
             <div className='flex flex-col gap-5 pl-4 mt-8'>
                 {
                     data && data.map((dt, ind) => (
-                        <AcceptedOrder data={dt} />
+                        <AcceptedOrder key={ind} data={dt} />
                     ))
                 }
             </div>
