@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom'
 
 function PendingOrder({ data, acceptOrder }) {
     const navigate = useNavigate();
-    console.log(data);
+    // console.log(data);
     return (
         <div className='relative cursor-pointer w-[100%] border-2 border-black rounded-xl px-6 py-6 flex items-center gap-6'>
-            <div onClick={() => navigate("/product-details")} className='w-[10rem] h-[10rem] aspect-square'>
+            <div onClick={() => navigate(`/product-details?id=${data?.product?.id}`)} className='w-[10rem] h-[10rem] aspect-square'>
                 <img src={data?.product?.img_url} alt="Product image" className='h-full w-full object-contain' />
             </div>
             <div onClick={() => navigate("/product-details")} className='flex flex-col gap-2 w-full'>

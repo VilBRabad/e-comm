@@ -26,7 +26,12 @@ function Login() {
             setUser(true);
             navigate("/products");
         } catch (error) {
-            window.alert("Something went wrong")
+            if (axios.isAxiosError(error)) {
+                const res = error.response;
+                console.log(res);
+                window.alert(res.data.error)
+            }
+            else window.alert("Something went wrong")
         }
         finally {
             setLoading(false);

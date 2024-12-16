@@ -9,6 +9,7 @@ function SellerDashboard({ children }) {
     const [data, setData] = useState(undefined);
     const { logout } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
+    const [todayOrder, setTodaysOrder] = useState(0);
 
     const getData = async () => {
         try {
@@ -20,6 +21,7 @@ function SellerDashboard({ children }) {
             })
 
             setData(res.data.data[0]);
+            setTodaysOrder(res.data.count);
         } catch (error) {
             logout();
         }
@@ -54,21 +56,24 @@ function SellerDashboard({ children }) {
                             <p className='font-bold text-white'>Logout</p>
                         </div>
                     </div>
-                    <div className='w-full border-b-2 border-black/60 flex gap-4 '>
-                        <div onClick={() => navigate("/dashboard")} className='py-3 px-6 bg-yellow-500/40 font-bold cursor-pointer'>
-                            <p>Your Items</p>
+                    <div className='w-full border-b-2 border-black/60 flex gap-4 justify-between '>
+                        <div className='flex gap-4'>
+                            <div onClick={() => navigate("/dashboard")} className='py-3 px-6 bg-yellow-500/40 font-bold cursor-pointer'>
+                                <p>Your Items</p>
+                            </div>
+                            <div onClick={() => navigate("/pending-orders")} className='py-3 px-6 bg-yellow-500/40 font-bold cursor-pointer'>
+                                <p>Pending Orders</p>
+                            </div>
+                            <div onClick={() => navigate("/accepted-orders")} className='py-3 px-6 bg-yellow-500/40 font-bold cursor-pointer'>
+                                <p>Accepted Orders</p>
+                            </div>
+                            <div onClick={() => navigate("/add-new-item")} className='py-3 px-6 bg-yellow-500/40 font-bold cursor-pointer'>
+                                <p>Add New Item</p>
+                            </div>
                         </div>
-                        <div onClick={() => navigate("/pending-orders")} className='py-3 px-6 bg-yellow-500/40 font-bold cursor-pointer'>
-                            <p>Pending Orders</p>
-                        </div>
-                        <div onClick={() => navigate("/accepted-orders")} className='py-3 px-6 bg-yellow-500/40 font-bold cursor-pointer'>
-                            <p>Accepted Orders</p>
-                        </div>
-                        {/* <div onClick={() => navigate("/delivered-orders")} className='py-3 px-6 bg-yellow-500/40 font-bold cursor-pointer'>
-                        <p>Deliverd Orders</p>
-                    </div> */}
-                        <div onClick={() => navigate("/add-new-item")} className='py-3 px-6 bg-yellow-500/40 font-bold cursor-pointer'>
-                            <p>Add New Item</p>
+                        <div className='bg-green-500 text-white py-3 px-6 font-bold flex gap-3 items-center justify-center'>
+                            <p>Todays number of orders</p>
+                            <p>{todayOrder ? todayOrder : 0}</p>
                         </div>
                     </div>
                     {children}

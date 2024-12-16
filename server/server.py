@@ -8,6 +8,7 @@ import jwt
 import datetime
 from flask_cors import CORS
 import razorpay
+import datetime
 
 
 app = Flask(__name__)
@@ -88,6 +89,8 @@ def login():
         if not email or not password:
             return jsonify({"error": "Email and password are required"}), 400
 
+
+        print(email, password)
         # Fetch user from the database
         res = client.table("user").select("*").eq("email", email).execute()
 
@@ -568,7 +571,7 @@ def verify_payment():
     #     return jsonify({"error": "Invalid JSON payload"}), 400
 
     # productId = data.get('productId')
-    print(f"Query Params: {request.args}")
+    # print(f"Query Params: {request.args}")
 
     # razorpay_order_id = data.get('razorpay_order_id')
     # razorpay_payment_id = data.get('razorpay_payment_id')
@@ -964,10 +967,21 @@ def getSellerDetails():
         res = (
             client.table("seller").select("*").eq("id", userId).execute()
         )
+
+        today = datetime.datetime.utcnow().strftime('%Y-%m-%d')
+        # print(today) 
+        orders = client.table("order").select("*", count="exact") \
+                .eq("seller", userId) \
+                .gte("created_at", f"{today}T00:00:00.000Z") \
+                .lt("created_at", f"{today}T23:59:59.999Z") \
+                .execute()
+        
+        # print(orders)
     
         return jsonify({
             "message": "Added successful",
-            "data": res.data
+            "data": res.data,
+            "count": orders.count
         }), 200
     
     except Exception as e:
@@ -1139,6 +1153,37 @@ def getProducts():
     except Exception as e:
         app.logger.error(f"Error during login: {str(e)}")
         return jsonify({"error": "Something went wrong"}), 500
+
+@app.route('/get-invoice-details', methods=['GET'])
+def getInvoiceDetails():
+    try:
+        orderId = request.args.get('orderId')
+
+        if not orderId:
+            return jsonify({"error": "Invalid order id"}), 400
+        
+
+        res = ( 
+            client.table("order").select("*, seller(*), product(*), address(*)").eq("id", orderId).execute()
+        )
+
+        # print(res.data[0])
+
+        # user = res.data[0]['user']
+
+        # userAds = client.table("userAddresses").select("*").eq("user", user).execute()
+        # print(userAds.data[0])
+
+        return jsonify({
+            "message": "Added successful",
+            "order": res.data[0],
+            # "user": userAds.data[0]
+        }), 200
+    
+    except Exception as e:
+        app.logger.error(f"Error during login: {str(e)}")
+        return jsonify({"error": "Something went wrong"}), 500
+
 
 
 

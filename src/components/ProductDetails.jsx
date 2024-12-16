@@ -82,7 +82,11 @@ function ProductDetails() {
                     </div> */}
                         <div className='h-[2px] bg-black/50 w-full my-6'></div>
                         <div className='flex gap-4'>
-                            <div onClick={() => navigate("/buy/select-addreess", { state: { productId: data.id } })} className='cursor-pointer h-[2.6rem] px-8 bg-sky-700 text-white font-semibold rounded-lg flex items-center justify-center'>
+                            <div onClick={() => {
+                                if (data && data.stock > 0) {
+                                    navigate("/buy/select-addreess", { state: { productId: data.id } })
+                                }
+                            }} className='cursor-pointer h-[2.6rem] px-8 bg-sky-700 text-white font-semibold rounded-lg flex items-center justify-center'>
                                 <p>Buy Now</p>
                             </div>
                             {

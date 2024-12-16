@@ -3,10 +3,12 @@ import SellerDashboard from './SellerDashboard'
 import AcceptedOrder from './AcceptedOrder'
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function AcceptedOrders() {
     const [data, setData] = useState(undefined);
     const { logout } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const getData = async () => {
         try {
@@ -20,6 +22,7 @@ function AcceptedOrders() {
             setData(res.data.data);
         } catch (error) {
             logout();
+            navigate("/login-as-seller");
         }
     }
 

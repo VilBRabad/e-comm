@@ -3,10 +3,12 @@ import SellerDashboard from './SellerDashboard'
 import PendingOrder from './PendingOrder'
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function PendingOrders() {
     const [data, setData] = useState(undefined);
     const { logout } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const getData = async () => {
         try {
@@ -20,6 +22,7 @@ function PendingOrders() {
             setData(res.data.data);
         } catch (error) {
             logout();
+            navigate("/login-as-seller");
         }
     }
 

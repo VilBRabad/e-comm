@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import InvoicePDF from './InvoicePDF';
 
 function Order({ data }) {
     const navigate = useNavigate();
@@ -7,12 +8,12 @@ function Order({ data }) {
 
     // console.log(data);
     return (
-        <div onClick={() => navigate(`/product-details?id=${data?.product?.id}`)} className='relative cursor-pointer w-[80%] border-2 border-black rounded-xl px-6 py-6 flex items-center gap-6'>
-            <div className='w-[10rem] h-[10rem] aspect-square'>
+        <div className='relative cursor-pointer w-[80%] border-2 border-black rounded-xl px-6 py-6 flex items-center gap-6'>
+            <div onClick={() => navigate(`/product-details?id=${data?.product?.id}`)} className='w-[10rem] h-[10rem] aspect-square'>
                 <img src={data?.product?.img_url} alt="" className='h-full w-full object-contain' />
             </div>
-            <div className='flex flex-col gap-2 w-full'>
-                <h1 className='text-xl font-bold'>{data?.product?.title}</h1>
+            <div className='relative flex flex-col gap-2 w-full'>
+                <h1 onClick={() => navigate(`/product-details?id=${data?.product?.id}`)} className='text-xl font-bold'>{data?.product?.title}</h1>
                 <div className='flex gap-4 items-center'>
                     <h1 className='text-lg'>₹ {data?.product?.price - (data?.product?.price * data?.product?.discount / 100)}</h1>
                     <p>X</p>
@@ -34,6 +35,7 @@ function Order({ data }) {
                         :
                         <p>Not mentioned</p>
                 }
+                <InvoicePDF orderId={data?.id} />
             </div>
             <div className={`absolute right-4 top-4 py-1 text-sm text-green-800 px-4 rounded-full ${data?.status ? "bg-yellow-500/30" : "bg-green-500/30"}`}>
                 <p>{data?.status ? "Shipped" : "Not shipped yet"}</p>

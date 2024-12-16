@@ -23,7 +23,11 @@ function SellerLogin() {
             login();
             setUser(false);
         } catch (error) {
-            window.alert(error.message)
+            if (axios.isAxiosError(error)) {
+                const res = error.response;
+                window.alert(res.data.error);
+            }
+            else window.alert("Something went wrong!")
         }
         finally {
             setLoading(false);
